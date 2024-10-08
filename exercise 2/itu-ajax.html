@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html>
+<head>
+  <title> ITU ajax </title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-2" />
+  <style type="text/css">
+  div, input { margin: 10px; }
+  </style>
+</head>
+<body>
+
+<!--
+  Author: Marek Čupr
+  Description: Simple AJAX chat application using XMLHttpRequest.
+  Date: 08.09.2024 
+-->
+
+<div id="chatArea" style="height: 300px; border: solid #aaa 1px; overflow:auto;"></div> 
+
+<form onsubmit="return uploadData()">
+  <input type="text" id="newMessageString">
+  <input type="submit" value="send">
+</form>
+
+<div id="status" style="border: solid #aaa 1px; ">&nbsp;</div> 
+
+<script type="text/javascript">
+
+// Constants
+const SERVER_URL = "https://pckiss.fit.vutbr.cz/itu/api.php";
+const READY_STATE_FINISHED = 4;
+const STATUS_OK = 200;
+
+// HTML elements
+let chatArea = document.getElementById("chatArea");
+var inputArea = document.getElementById("newMessageString");
+let statusArea = document.getElementById("status");
+
+// Message ID tracker 
+let lastMessageID = -1;
+
+/***
+  * XMLHttpRequest object constructor (for compatibility with various browsers)
+  */
+function createXmlHttpRequestObject() 
+{
+    var request;
+  
+    try
+    {
+        request = new XMLHttpRequest(); // should work on all browsers except IE6 or older
+    } 
+    catch (e) 
+    { 
+        try 
+        {
+            request = new ActiveXObject("Microsoft.XMLHttp"); // browser is IE6 or older
+        }
+        catch (e) 
+        {
+            // ignore error
+        }
+    }
+  
+    if (!request) 
+    {
+        alert("Error creating the XMLHttpRequest object.");
+    } 
+    else 
+    {
+        return request;
+    }
+}
+
+/***
+ * Function to upload new chat message to server
+ */
+function uploadData()
+{
+    // Update status area
+    document.getElementById("status").innerHTML = "uploadData()";
+
+    try 
+    {
+        // Create XMLHttpRequest object
+        var request = createXmlHttpRequestObject(); // stores XMLHttpRequestObject
+
+        // Get new chat message from input area
+        var newMessage = inputArea.value;
+
+        // Initialize request
+        request.open("POST", SERVER_URL, true);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded"); 
+        request.onreadystatechange = () => {
+            // Check if request is OK
+            if (request.readyState === READY_STATE_FINISHED && request.status === STATUS_OK) {
+                // Clear input area
+                inputArea.value = ""; 
+                // Fetch updated chat messages
+                downloadData(); 
+            }
+        }
+        // Send request
+        request.send("user=xcuprm01&data=" + encodeURIComponent(newMessage));
+    } 
+    catch (e) 
+    {
+        alert(e.toString()); 
+    }
+
+    return false; // to avoid default form submit behavior 
+}
+
+/***
+ * Function to download new chat messages from server
+ */
+function downloadData() 
+{
+    // Update status area
+    document.getElementById("status").innerHTML = "downloadData()";
+
+    try 
+    {
+        // Create XMLHttpRequest object
+        var request = createXmlHttpRequestObject(); // stores XMLHttpRequestObject
+
+        // Initialize request
+        request.open("GET", SERVER_URL, true);
+        request.onreadystatechange = () => {
+            if (request.readyState === READY_STATE_FINISHED && request.status === STATUS_OK) {
+                // Parse JSON response
+                var parsedMessages = JSON.parse(request.responseText);
+                parsedMessages.forEach(message => {
+                    // Fetch new messages
+                    if (message.id > lastMessageID) {
+                        const formattedMessage = `[${message.dts}] ${message.login}: ${message.cnt}<br>`;
+                        // Display new message to chat
+                        chatArea.innerHTML += formattedMessage;
+                        // Update message ID tracker
+                        lastMessageID = message.id
+                        // Update status area
+                        statusArea.innerHTML = `Processing message of ID: ${message.id}`;
+                        // Scroll to bottom of chat
+                        chatArea.scrollTop = chatArea.scrollHeight;
+                    }
+                })
+            }
+        }
+        // Send request
+        request.send(null);
+    }
+    catch (e) 
+    {
+        alert(e.toString()); 
+    }
+}
+
+// Initialize chat
+downloadData();
+// Fetch new messages every 2 seconds
+setInterval(downloadData, 2000);
+
+</script>
+</body>
+</html>
