@@ -4,7 +4,7 @@
 #include <math.h>
 
 /**
- * Author: Marek Èupr
+ * Author: Marek ÄŒupr
  * Description: Simple WinAPI application to demonstrate an interaction.
  * Date: 23.10.2024
 */
