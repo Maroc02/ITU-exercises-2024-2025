@@ -1,0 +1,4 @@
+﻿  main.c
+P:\WinAPI\WinAPI\main.c(260,2): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+P:\WinAPI\WinAPI\main.c(206,1): warning C4715: 'MainWndProc': not all control paths return a value
+  WinApi.vcxproj -> P:\WinAPI\WinAPI\Debug\WinApi.exe
