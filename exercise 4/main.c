@@ -175,7 +175,7 @@ LRESULT CALLBACK MainWndProc(
 		break;
 
 	case WM_RBUTTONDOWN:
-		currentColorIndex = (currentColorIndex < 0) ? COLORS_LEN - 1: currentColorIndex - 1;
+		currentColorIndex = (currentColorIndex < 0) ? COLORS_LEN - 1 : currentColorIndex - 1;
 		InvalidateRect(hWnd, NULL, TRUE);
 		break;
 	case WM_RBUTTONUP:
